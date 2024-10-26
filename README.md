@@ -1,41 +1,34 @@
-# SE355 LAB1 - Node Communication System
+# Node Communication System
 
-This project demonstrates a simple system where four nodes (A, B, C, D) communicate with each other by sending and receiving random integers in a circular topology. Each node acts as both a server and a client, sending a random number to the next node in the chain.
+This project demonstrates a simple system of communication between multiple nodes using Java sockets. Nodes can send and receive random integer numbers to and from each other. Specifically, two nodes (`A` and `B`) continuously send random numbers to two other nodes (`X` and `Y`), which then forward the received numbers to a final node (`Z`). Node `Z` displays the received numbers on the console.
 
-## The Circular Topology
-
-The communication follows a circular topology:
-                +--------+
-                |        |
-           +--->+   A    +----+
-           |    |        |    |
-           |    +--------+    |
-           |                  |
-        +--v--+            +--v--+
-        |     |            |     |
-        +  D  +            +  B  +
-        |     |            |     |
-        +--+--+            +--+--+
-            ^                 ^
-            |   +--------+    |
-            +---+   C    +<---+
-                |        |
-                +--------+
-
-1. Node A generates a random number and sends it to Node B.
-2. Node B receives the number from A, sends it to Node C.
-3. Node C receives the number from B, sends it to Node D.
-4. Node D receives the number from C, sends it back to Node A.
-5. The received number at Node A is displayed as output.
-
+## Project Topology
+    +---+       +---+       
+    | A |------>| X |------------|
+    +---+       +---+            |
+        \        ^               |
+         \      /                |
+          \    /                 v 
+           \  /                +---+
+            \/                 | Z |
+           / \                 +---+
+          /   \                  ^
+         /     v                 |
+    +---+       +---+            |
+    | B |------>| Y |------------| 
+    +---+       +---+
 
 ## Project Structure
+- **`Node.java`**: Defines the `Node` class, which represents a network node capable of sending and receiving numbers.
+- **`ClientSendingHandler.java`**: A thread handler that continuously sends random numbers to a specified server.
+- **`ServerHandler.java`**: A thread handler that listens for incoming connections, receives numbers, and forwards them if needed.
+- **`Main.java`**: The main entry point of the program, which sets up the nodes and initiates communication.
 
-- **Main.java**: This is the entry point of the application. It creates the four nodes, starts their servers, generates a random integer, and sends the number from node A -> B -> C -> D -> A.
-  
-- **Node.java**: This class represents a node in the system. Each node can:
-  - Act as a server to receive numbers from other nodes.
-  - Act as a client to send numbers to other nodes.
-  
-- **ClientHandler.java**: A helper class that handles incoming connections to a node. It runs in a separate thread and waits for other nodes to send numbers.
-
+## How It Works
+1. **Initialization**:
+    - Nodes `A`, `B`, `X`, `Y`, and `Z` are created using the local loopback address `127.0.0.1` and specific port numbers.
+    - Nodes `X`, `Y`, and `Z` start their server sockets to listen for incoming connections.
+2. **Communication**:
+    - Nodes `A` and `B` send random numbers continuously to nodes `X` and `Y`.
+    - Nodes `X` and `Y` forward the received numbers to node `Z`.
+    - Node `Z` displays the numbers on the console as it receives them.

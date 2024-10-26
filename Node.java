@@ -9,7 +9,7 @@ public class Node {
     private int portNumber;
     private int receivedNumberMessage;
 
-    // Constructor to initialize a node with a specific IP address and port number
+    // Constructor to initialize a Node with a specific IP address and port number
     public Node(String ipAddr, int portNumber) {
         try {
             this.ipAddr = InetAddress.getByName(ipAddr);
@@ -19,8 +19,7 @@ public class Node {
         }
     }
 
-
-    // Getter methods for IP address, port number, server, and the received number properties
+    // Getter methods for IP address, port number, server, and received number properties
     public String getIPAddr() {
         return this.ipAddr.getHostAddress();
     }
@@ -37,14 +36,12 @@ public class Node {
         return this.receivedNumberMessage;
     }
 
-
-    // Setter for the receivedNumberMessage property
+    // Setter for the received number property
     public void setReceivedNumberMessage(int receivedNumberMessage) {
         this.receivedNumberMessage = receivedNumberMessage;
     }
 
-
-    // Initialize the serverSocket property for a node
+    // Method to create and initialize the server socket for the node
     private void createServerSocket() {
         try {
             this.server = new ServerSocket(this.portNumber);
@@ -53,13 +50,11 @@ public class Node {
         }
     }
 
-
-    // Method to send a number to a specific node's server. Requires the server's IP address,
-    // port number, and the number to be sent
+    // Method to send a number to a specified node's server
+    // Requires the server's IP address, port number, and the number to be sent
     public void sendNumber(String serverIPAddr, int serverPortNumber, int number) {
         try (Socket client = new Socket(serverIPAddr, serverPortNumber)) {
             OutputStreamWriter osw = new OutputStreamWriter(client.getOutputStream());
-
             osw.write(number + "\n");
             osw.flush();
         } catch (Exception e) {
@@ -67,20 +62,19 @@ public class Node {
         }
     }
 
+    // Method to start a thread that sends numbers to another server indefinitely
+    public void sendNumbersInfinitely(String serverIPAddr, int serverPortNumber) {
+        ClientSendingHandler csh = new ClientSendingHandler(this, serverIPAddr, serverPortNumber);
+        Thread t1 = new Thread(csh);
+        t1.start();
+    }
 
-    // This method is responsible for running the server in a new thread
-    // Allowing it to listen for incoming numbers from other nodes
+    // Method to set up the server to receive numbers from other nodes
     public void receiveNumber() {
         createServerSocket();
-
-        try {            
-            // the server will be handed to the 
-            // ClientHandler's class
-            ClientHandler ch = new ClientHandler(this); 
-
-
-            // The thread object will run the ch object's run method.                                            
-            Thread t1 = new Thread(ch);           
+        try {
+            ServerHandler ch = new ServerHandler(this);
+            Thread t1 = new Thread(ch);
             t1.start();
         } catch (Exception e) {
             System.out.println(e);
